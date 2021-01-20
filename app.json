@@ -1,0 +1,6 @@
+{
+    "name": "connect4",
+    "description": "A game of connect4, against an AI opponet",
+    "repository": "https://github.com/piman51277/connect4-minimax",
+    "keywords": ["node", "connect4"]
+}

@@ -1,0 +1,21 @@
+{
+    "name": "connect4-minimax",
+    "description": "A game of connect4, against an AI opponet",
+    "version": "1.0.0",
+    "main": "index.html",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/piman51277/connect4-minimax"
+    },
+    "author": "piman",
+    "bugs": {
+        "url": "https://github.com/piman51277/connect4-minimax/issues"
+    },
+    "homepage": "https://github.com/piman51277/connect4-minimax",
+    "scripts": {
+        "start": "node main.js"
+    },
+    "dependencies": {
+        "express": "^4.17.1"
+    }
+}

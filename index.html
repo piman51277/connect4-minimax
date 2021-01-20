@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>connect4</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+</head>
+
+<body>
+    <canvas id="myCanvas" width="950" height="830" style="border:1px solid #000000;"></canvas>
+    <script>
+        let canvas = document.getElementById("myCanvas");
+        let ctx = canvas.getContext("2d");
+
+        let board = [
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0]
+        ]
+        let turn = 1;
+        let selectColumn = -1;
+        let boardEval = 0;
+        let winner = 0;
+
+        function constrain(min, max, val) {
+            return val < min ? min : (val > max ? max : val)
+        }
+
+        //click detection
+        window.addEventListener('click', (e) => {
+            //determine what hitbox the client was clicking in
+            selectColumn = constrain(0, 7, Math.floor((e.clientX - 50) /
+                120));
+            if (winner != 0) {
+                board = [
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0]
+                ]
+                boardEval = 0;
+                winner = 0;
+                refreshDisplay();
+            } else {
+                move(selectColumn, turn)
+            }
+        })
+
+        function move(column, player) {
+            if (board[0][column] == 0 && boardEval != Infinity && boardEval != -Infinity) {
+                //there is empty space
+
+                //find the highest slot possible
+                for (y in board) {
+                    if (board[y][column] != 0) {
+                        board[y - 1][column] = player
+                        turn = turn == 1 ? 2 : 1
+                        boardEval = evalBoard(board, 1)
+                        break;
+                    }
+                }
+                if (board[5][column] == 0) { //the lowest slot is a 0, you can put a token here
+                    board[5][column] = player
+                    turn = turn == 1 ? 2 : 1
+                    boardEval = evalBoard(board, 1)
+                }
+            }
+
+            refreshDisplay();
+            if (turn == 2 && (boardEval != Infinity && boardEval != -Infinity)) {
+                //trigger AI for green
+                board = getBestMove(board, 2)
+                turn = 1
+                boardEval = evalBoard(board, 1)
+            }
+
+            if (boardEval == Infinity) winner = 1;
+            if (boardEval == -Infinity) winner = 2;
+
+            refreshDisplay();
+        }
+
+        function refreshDisplay() {
+            ctx.fillStyle = '#AAAAAA'
+            ctx.fillRect(0, 0, 950, 830);
+            //circles
+            for (x in board) {
+                for (y in board[x]) {
+                    ctx.fillStyle = board[x][y] == 0 ? '#FFFFFF' : (board[x][y] == 1 ? 'red' : 'green')
+                    ctx.beginPath();
+                    ctx.arc(110 + y * 120, 110 + x * 120, 50, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+            //top debug text
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = '10px Georgia'
+            ctx.fillText(`AI evaluation ${boardEval}`, 450, 20)
+                //winner
+            ctx.globalAlpha = 0.9
+            if (winner != 0) {
+                //winner result display box
+
+                ctx.fillStyle = '#AAAAAA'
+                ctx.fillRect(225, 200, 500, 300)
+                ctx.strokeRect(225, 200, 500, 300)
+                    //text
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#FFFFFF";
+                ctx.font = '90px Georgia'
+                ctx.fillText('Game Over', 475, 290)
+                ctx.font = '40px Georgia'
+                ctx.fillText('Winner:', 475, 330)
+                    //winner text
+                ctx.fillStyle = winner == 1 ? 'red' : 'green'
+                ctx.fillText(winner == 1 ? 'Player' : 'AI', 475, 370)
+                ctx.fillStyle = 'white'
+                ctx.font = '10px Georgia'
+                ctx.fillText('Click to retry', 475, 390)
+            } else if (isTie(board)) {
+                //winner result display box
+                ctx.fillStyle = '#AAAAAA'
+                ctx.fillRect(225, 200, 500, 300)
+                ctx.strokeRect(225, 200, 500, 300)
+                    //text
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#FFFFFF";
+                ctx.font = '90px Georgia'
+                ctx.fillText('Tie', 475, 290)
+                ctx.font = '40px Georgia'
+                ctx.fillText('You tied IDIOT', 475, 330)
+
+                ctx.font = '10px Georgia'
+                ctx.fillText('Click to retry', 475, 350)
+            }
+            ctx.globalAlpha = 1
+        }
+
+        function isTie(board) {
+            for (i in board[0]) {
+                if (board[0][i] == 0) {
+                    return false;
+                }
+            }
+            if (winner == 0) {
+                return true;
+            }
+        }
+
+        //save computing time by pregenerating
+        const DIAGONAL_LINES = [
+            [
+                [0, 1],
+                [1, 0]
+            ],
+            [
+                [0, 2],
+                [1, 1],
+                [2, 0]
+            ],
+            [
+                [0, 3],
+                [1, 2],
+                [2, 1],
+                [3, 0]
+            ],
+            [
+                [0, 4],
+                [1, 3],
+                [2, 2],
+                [3, 1],
+                [4, 0]
+            ],
+            [
+                [0, 5],
+                [1, 4],
+                [2, 3],
+                [3, 2],
+                [4, 1],
+                [5, 0]
+            ],
+            [
+                [0, 6],
+                [1, 5],
+                [2, 4],
+                [3, 3],
+                [4, 2],
+                [5, 1]
+            ],
+            [
+                [0, 6],
+                [1, 5],
+                [2, 4],
+                [3, 3],
+                [4, 2],
+                [5, 1]
+            ],
+            [
+                [1, 6],
+                [2, 5],
+                [3, 4],
+                [4, 3],
+                [5, 2]
+            ],
+            [
+                [2, 6],
+                [3, 5],
+                [4, 4],
+                [5, 3]
+            ],
+            [
+                [3, 6],
+                [4, 5],
+                [5, 4]
+            ],
+            [
+                [4, 6],
+                [5, 5]
+            ],
+            [
+                [0, 5],
+                [1, 6]
+            ],
+            [
+                [0, 4],
+                [1, 5],
+                [2, 6]
+            ],
+            [
+                [0, 3],
+                [1, 4],
+                [2, 5],
+                [3, 6]
+            ],
+            [
+                [0, 2],
+                [1, 3],
+                [2, 4],
+                [3, 5],
+                [4, 6]
+            ],
+            [
+                [0, 1],
+                [1, 2],
+                [2, 3],
+                [3, 4],
+                [4, 5],
+                [5, 6]
+            ],
+            [
+                [0, 0],
+                [1, 1],
+                [2, 2],
+                [3, 3],
+                [4, 4],
+                [5, 5]
+            ],
+            [
+                [0, 0],
+                [1, 1],
+                [2, 2],
+                [3, 3],
+                [4, 4],
+                [5, 5]
+            ],
+            [
+                [1, 0],
+                [2, 1],
+                [3, 2],
+                [4, 3],
+                [5, 4]
+            ],
+            [
+                [2, 0],
+                [3, 1],
+                [4, 2],
+                [5, 3]
+            ],
+            [
+                [3, 0],
+                [4, 1],
+                [5, 2]
+            ]
+        ]
+
+        function scoreSequence(seq, player) {
+            if (seq.length < 2) {
+                return 0
+            }
+            let total = 0;
+            let currentPlayer = 0;
+            let length = 0;
+            let before = null;
+            for (i in seq) {
+                if (currentPlayer != seq[i]) { //area just ended
+                    if (length >= 2 && currentPlayer != 0 && (before == 0 || seq[i] == 0)) {
+                        total += 2 ** length * (player == currentPlayer ? 1 : -1)
+                    }
+                    before = currentPlayer;
+                    currentPlayer = seq[i]
+                    length = 0;
+                }
+                length++;
+                if (length >= 4 && currentPlayer != 0) {
+                    total += Infinity * (player == currentPlayer ? 1 : -1)
+                } else if (length >= 2 && currentPlayer != 0 && before == 0) {
+                    total += 2 ** length * (player == currentPlayer ? 1 : -1)
+                }
+            }
+            return total
+        }
+
+        function evalBoard(board, player) {
+            let total = 0;
+            //check horizontal
+            for (let y = 0; y < 6; y++) {
+                total += scoreSequence(board[y], player)
+            }
+            //check vertical
+            for (let x = 0; x < 7; x++) {
+                let seq = [];
+                for (let y = 0; y < 6; y++) {
+                    seq.push(board[y][x])
+                }
+                total += scoreSequence(seq, player)
+            }
+            //check diagnals 
+            for (i in DIAGONAL_LINES) {
+                let sequence = []
+                for (seq in DIAGONAL_LINES[i]) {
+                    sequence.push(board[DIAGONAL_LINES[i][seq][0]][DIAGONAL_LINES[i][seq][1]])
+                }
+                total += scoreSequence(sequence, player)
+            }
+            //screw this
+            if (isNaN(total)) {
+                return -Infinity
+            }
+
+            return total
+        }
+
+        function getChildren(board, player) {
+            //check the top row. We can determine if a move is possible from this
+            let results = []
+            for (i in board[0]) {
+                if (board[0][i] == 0) {
+                    //there is empty space
+
+                    //find the highest slot possible
+                    for (y in board) {
+                        if (board[y][i] != 0) {
+                            let copy = JSON.parse(JSON.stringify(board)) //WHY DO I HAVE TO DO THIS!?!??!
+                            copy[y - 1][i] = player
+                            results.push(copy)
+                            break;
+                        }
+                    }
+                    if (board[5][i] == 0) { //the lowest slot is a 0, you can put a token here
+                        let copy = JSON.parse(JSON.stringify(board)) //WHY DO I HAVE TO DO THIS!?!??!
+                        copy[5][i] = player
+                        results.push(copy)
+                    }
+                }
+            }
+            return results;
+        }
+
+        const MAX_BRANCHES = 5;
+
+        //minimax, no alpha-beta pruning
+        function getBestMove(board, player, layer, currentPlayer) {
+            layer = layer == undefined ? 0 : layer
+            currentPlayer = currentPlayer == undefined ? player : currentPlayer
+            const children = getChildren(board, currentPlayer);
+            let results = []
+            for (i in children) {
+
+
+                if (layer < MAX_BRANCHES) {
+                    //look to next nodes
+                    results.push(getBestMove(children[i], player, layer + 1, currentPlayer == 1 ? 2 : 1))
+                } else {
+
+                    let eval = evalBoard(children[i], player)
+                    results.push(eval)
+                }
+            }
+
+            //TODO prioritize faster wins over longer ones
+            let best = player == currentPlayer ? Math.max(...results) : Math.min(...results)
+            if (layer != 0) {
+                return best
+            } else {
+                return children[results.indexOf(best)]
+            }
+        }
+
+
+        refreshDisplay();
+    </script>
+</body>
+
+</html>
