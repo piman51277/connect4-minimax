@@ -157,15 +157,6 @@
         //save computing time by pregenerating
         const DIAGONAL_LINES = [
             [
-                [0, 1],
-                [1, 0]
-            ],
-            [
-                [0, 2],
-                [1, 1],
-                [2, 0]
-            ],
-            [
                 [0, 3],
                 [1, 2],
                 [2, 1],
@@ -216,24 +207,6 @@
                 [5, 3]
             ],
             [
-                [3, 6],
-                [4, 5],
-                [5, 4]
-            ],
-            [
-                [4, 6],
-                [5, 5]
-            ],
-            [
-                [0, 5],
-                [1, 6]
-            ],
-            [
-                [0, 4],
-                [1, 5],
-                [2, 6]
-            ],
-            [
                 [0, 3],
                 [1, 4],
                 [2, 5],
@@ -282,39 +255,39 @@
                 [3, 1],
                 [4, 2],
                 [5, 3]
-            ],
-            [
-                [3, 0],
-                [4, 1],
-                [5, 2]
             ]
         ]
 
         function scoreSequence(seq, player) {
-            if (seq.length < 2) {
+            if (seq.length < 4) {
                 return 0
             }
-            let total = 0;
-            let currentPlayer = 0;
-            let length = 0;
-            let before = null;
-            for (i in seq) {
-                if (currentPlayer != seq[i]) { //area just ended
-                    if (length >= 2 && currentPlayer != 0 && (before == 0 || seq[i] == 0)) {
-                        total += 2 ** length * (player == currentPlayer ? 1 : -1)
+            let s = 0; //score
+            let r = 0; //actual run
+            let p = 0; //potential run
+            let c = 0; //current
+            let ch = 0; //cache
+            for (let i = 0; i < seq.length; i++) {
+                const v = seq[i]
+                if (v != 0) {
+                    if (c != v) {
+                        if (p + r + ch >= 4) {
+                            s += 2 ** r * (c == player ? 1 : -1)
+                        }
+                        ch = p
+                        r = 0;
                     }
-                    before = currentPlayer;
-                    currentPlayer = seq[i]
-                    length = 0;
+                    c = v
+                    p = 0;
+                } else {
+                    p++
                 }
-                length++;
-                if (length >= 4 && currentPlayer != 0) {
-                    total += Infinity * (player == currentPlayer ? 1 : -1)
-                } else if (length >= 2 && currentPlayer != 0 && before == 0) {
-                    total += 2 ** length * (player == currentPlayer ? 1 : -1)
-                }
+                if (c == v) r++;
             }
-            return total
+            if (p + r + ch >= 4) {
+                s += 2 ** r * (c == player ? 1 : -1)
+            }
+            return s
         }
 
         function evalBoard(board, player) {
@@ -373,7 +346,7 @@
             return results;
         }
 
-        const MAX_BRANCHES = 5;
+        const MAX_BRANCHES = 6;
 
         //minimax, no alpha-beta pruning
         function getBestMove(board, player, layer, currentPlayer) {
@@ -395,6 +368,7 @@
             }
 
             //TODO prioritize faster wins over longer ones
+            //TODO add alpha-beta pruning
             let best = player == currentPlayer ? Math.max(...results) : Math.min(...results)
             if (layer != 0) {
                 return best
