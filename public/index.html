@@ -14,6 +14,9 @@
         function setDifficulty(num) {
             document.getElementById("myCanvas").hidden = false;
             document.getElementById("init").hidden = true;
+            if (document.getElementById("turn").checked == true) {
+                turn = 2
+            }
             MAX_BRANCHES = num;
             setTimeout(() => {
                 game();
@@ -21,6 +24,8 @@
         }
 
         let MAX_BRANCHES = 6;
+
+        let turn = 1;
         //the game
         function game() {
             let canvas = document.getElementById("myCanvas");
@@ -34,7 +39,6 @@
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0]
             ]
-            let turn = 1;
             let selectColumn = -1;
             let boardEval = 0;
             let winner = 0;
@@ -61,25 +65,25 @@
                     winner = 0;
                     refreshDisplay();
                 } else {
-                    move(selectColumn, turn)
+                    move(selectColumn)
                 }
             })
 
-            function move(column, player) {
-                if (board[0][column] == 0 && boardEval != Infinity && boardEval != -Infinity) {
+            function move(column) {
+                if (board[0][column] == 0 && boardEval != Infinity && boardEval != -Infinity && turn == 1) {
                     //there is empty space
 
                     //find the highest slot possible
                     for (y in board) {
                         if (board[y][column] != 0) {
-                            board[y - 1][column] = player
-                            turn = turn == 1 ? 2 : 1
+                            board[y - 1][column] = 1
+                            turn = 2
                             break;
                         }
                     }
                     if (board[5][column] == 0) { //the lowest slot is a 0, you can put a token here
-                        board[5][column] = player
-                        turn = turn == 1 ? 2 : 1
+                        board[5][column] = 1
+                        turn = 2
                     }
                 }
 
@@ -444,14 +448,16 @@
             }
 
 
-            refreshDisplay('Click on any column to start');
+            refreshDisplay('Click to start');
         }
     </script>
     <div id="init">
         <p> Click Difficulty to start:</p>
         <button onClick="setDifficulty(4);">1</button>
         <button onClick="setDifficulty(5);">2</button>
-        <button onClick="setDifficulty(6);">3</button>
+        <button onClick="setDifficulty(6);">3</button><br>
+        <label>Ai goes first?</label><input type="checkbox" id="turn">
+
     </div>
     <br>
     <a href="https://github.com/piman51277/connect4-minimax">Source Code</a>
