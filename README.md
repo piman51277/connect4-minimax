@@ -5,4 +5,4 @@ This is a thrown-together AI for connect 4 using miniMax (no alpha beta pruning)
 run `main.js` and navigate to http://localhost:8000,
 or just open `index.html`
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+It is also hosted on heroku: https://piman51277-connect4.herokuapp.com/
