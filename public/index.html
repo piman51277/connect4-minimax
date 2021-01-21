@@ -15,7 +15,7 @@
             document.getElementById("myCanvas").hidden = false;
             document.getElementById("init").hidden = true;
             if (document.getElementById("turn").checked == true) {
-                turn = 2
+                goFirst = 2
             }
             MAX_BRANCHES = num;
             setTimeout(() => {
@@ -24,8 +24,8 @@
         }
 
         let MAX_BRANCHES = 6;
+        let goFirst = 1;
 
-        let turn = 1;
         //the game
         function game() {
             let canvas = document.getElementById("myCanvas");
@@ -42,6 +42,8 @@
             let selectColumn = -1;
             let boardEval = 0;
             let winner = 0;
+
+            let turn = goFirst;
 
             function constrain(min, max, val) {
                 return val < min ? min : (val > max ? max : val)
@@ -63,6 +65,7 @@
                     ]
                     boardEval = 0;
                     winner = 0;
+                    turn = goFirst;
                     refreshDisplay();
                 } else {
                     move(selectColumn)
@@ -425,13 +428,10 @@
                 const children = getChildren(board, currentPlayer);
                 let results = []
                 for (i in children) {
-
-
                     if (layer < MAX_BRANCHES) {
                         //look to next nodes
                         results.push(getBestMove(children[i], player, layer + 1, currentPlayer == 1 ? 2 : 1))
                     } else {
-
                         let eval = evalBoard(children[i], player)
                         results.push(eval)
                     }
@@ -440,6 +440,12 @@
                 //TODO prioritize faster wins over longer ones
                 //TODO add alpha-beta pruning
                 let best = player == currentPlayer ? Math.max(...results) : Math.min(...results)
+
+                //check if there is both a win and a loss in the future. If there is both, go for the win
+                if (results.indexOf(Infinity) != -1 && results.indexOf(-Infinity) != -1) {
+                    best = Infinity
+                }
+
                 if (layer != 0) {
                     return best
                 } else {
