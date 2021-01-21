@@ -291,7 +291,7 @@
                     if (v != 0) {
                         if (c != v) {
                             if (p + r + ch >= 4 && c != 0) {
-                                s += r ** 3 * (c == player ? 1 : -1)
+                                s += r ** 4 * (c == player ? 1 : -1)
                             }
                             ch = p
                             r = 0;
@@ -316,7 +316,7 @@
                     }
                 }
                 if (p + r + ch >= 4 && c != 0) {
-                    s += r ** 3 * (c == player ? 1 : -1)
+                    s += r ** 4 * (c == player ? 1 : -1)
                 }
                 return s
             }
