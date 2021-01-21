@@ -92,10 +92,11 @@
                             turn = 1
                         }
                         boardEval = evalBoard(board, 1)
+
+                        if (boardEval == Infinity) winner = 1;
+                        if (boardEval == -Infinity) winner = 2;
                         refreshDisplay('player turn');
                     }, 1) //add delay so the board can update before computing
-                if (boardEval == Infinity) winner = 1;
-                if (boardEval == -Infinity) winner = 2;
             }
 
             function refreshDisplay(status) {
