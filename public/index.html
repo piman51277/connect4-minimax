@@ -136,7 +136,7 @@
                 ctx.fillStyle = "#888888"
                 ctx.fillRect(100, 0, 100, 30)
                 ctx.fillStyle = "white";
-                ctx.fillText(`Difficulty: ${MAX_BRANCHES-3}/3`, 150, 20)
+                ctx.fillText(`Difficulty: ${MAX_BRANCHES-4}/3`, 150, 20)
                 ctx.fillStyle = MAX_BRANCHES == 6 ? '#FF0000' : (MAX_BRANCHES == 5 ? `#FFFF00` : `#2FFF2F`)
                 ctx.fillRect(200, 0, 30, 30)
 
@@ -465,7 +465,7 @@
     </script>
     <div id="init">
         <p> Click Difficulty to start:</p>
-        <button onClick="setDifficulty(1);">1</button>
+        <button onClick="setDifficulty(5);">1</button>
         <button onClick="setDifficulty(6);">2</button>
         <button onClick="setDifficulty(7);">3</button><br>
         <label>Ai goes first?</label><input type="checkbox" id="turn">
