@@ -285,7 +285,7 @@
                 let p = 0; //potential run
                 let c = 0; //current
                 let ch = 0; //cache
-                let rr = 0; //real run
+                let rr = 0;
                 for (let i = 0; i < seq.length; i++) {
                     const v = seq[i]
                     if (v != 0) {
@@ -296,9 +296,7 @@
                             ch = p
                             r = 0;
                             rr = 0;
-                            if (rr >= 3 && c != 0) {
-                                return Infinity * (c == player ? 1 : -1)
-                            }
+
                         }
                         c = v
                         p = 0;
@@ -310,16 +308,15 @@
                     }
                     if (c == v) {
                         r++;
-                        rr++
+                        rr++;
                     }
 
-
+                    if (rr >= 4 && c != 0) {
+                        return Infinity * (c == player ? 1 : -1)
+                    }
                 }
                 if (p + r + ch >= 4 && c != 0) {
                     s += r ** 3 * (c == player ? 1 : -1)
-                }
-                if (rr >= 3 && c != 0) {
-                    return Infinity * (c == player ? 1 : -1)
                 }
                 return s
             }
