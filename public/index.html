@@ -271,21 +271,25 @@
                 const v = seq[i]
                 if (v != 0) {
                     if (c != v) {
-                        if (p + r + ch >= 4) {
-                            s += 2 ** r * (c == player ? 1 : -1)
+                        if (p + r + ch >= 4 && c != 0) {
+                            s += r ** 3 * (c == player ? 1 : -1)
                         }
                         ch = p
                         r = 0;
                     }
                     c = v
                     p = 0;
+
+                    if (r >= 3 && c != 0) {
+                        return Infinity * (c == player ? 1 : -1)
+                    }
                 } else {
                     p++
                 }
                 if (c == v) r++;
             }
-            if (p + r + ch >= 4) {
-                s += 2 ** r * (c == player ? 1 : -1)
+            if (p + r + ch >= 4 && c != 0) {
+                s += r ** 3 * (c == player ? 1 : -1)
             }
             return s
         }
@@ -380,6 +384,9 @@
 
         refreshDisplay();
     </script>
+    <a href='https://free-hit-counters.net/'>https://free-hit-counters.net</a>
+    <script type='text/javascript' src='https://www.freevisitorcounters.com/auth.php?id=e1da92a6f13d6fa4989d3d03f3309942cd6d08c7'></script>
+    <script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/785303/t/2"></script>
 </body>
 
 </html>
