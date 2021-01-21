@@ -23,7 +23,7 @@
             }, 100)
         }
 
-        let MAX_BRANCHES = 6;
+        let MAX_BRANCHES = 7;
         let goFirst = 1;
 
         //the game
@@ -95,7 +95,7 @@
                 setTimeout(() => {
                         if (turn == 2 && (boardEval != Infinity && boardEval != -Infinity)) {
                             //trigger AI for green
-                            board = getBestMove(board, 2)
+                            board = minimax(board, 0, -Infinity, Infinity, true)[1]
                             turn = 1
                         }
                         boardEval = evalBoard(board, 1)
@@ -422,34 +422,40 @@
 
 
             //minimax, no alpha-beta pruning
-            function getBestMove(board, player, layer, currentPlayer) {
-                layer = layer == undefined ? 0 : layer
-                currentPlayer = currentPlayer == undefined ? player : currentPlayer
-                const children = getChildren(board, currentPlayer);
-                let results = []
-                for (i in children) {
-                    if (layer < MAX_BRANCHES) {
-                        //look to next nodes
-                        results.push(getBestMove(children[i], player, layer + 1, currentPlayer == 1 ? 2 : 1))
-                    } else {
-                        let eval = evalBoard(children[i], player)
-                        results.push(eval)
+            function minimax(board, layer, alpha, beta, maxPlayer) {
+                let currenteval = evalBoard(board, 2)
+                if (layer == MAX_BRANCHES || (currenteval == Infinity || currenteval == -Infinity)) {
+                    return [currenteval, null];
+                }
+                if (maxPlayer) {
+                    const children = getChildren(board, 2);
+                    const results = [];
+                    let max = -Infinity
+                    for (i in children) {
+                        const childeval = minimax(children[i], layer + 1, alpha, beta, !maxPlayer)[0]
+                        alpha = Math.max(alpha, childeval);
+                        max = Math.max(max, childeval)
+                        results.push(childeval)
+                        if (beta <= alpha) {
+                            break;
+                        }
                     }
-                }
+                    return [max, children[results.indexOf(max)]]
 
-                //TODO prioritize faster wins over longer ones
-                //TODO add alpha-beta pruning
-                let best = player == currentPlayer ? Math.max(...results) : Math.min(...results)
-
-                //check if there is both a win and a loss in the future. If there is both, go for the win
-                if (results.indexOf(Infinity) != -1 && results.indexOf(-Infinity) != -1) {
-                    best = Infinity
-                }
-
-                if (layer != 0) {
-                    return best
                 } else {
-                    return children[results.indexOf(best)]
+                    const children = getChildren(board, 2);
+                    const results = [];
+                    let min = -Infinity
+                    for (i in children) {
+                        const childeval = minimax(children[i], layer + 1, alpha, beta, !maxPlayer)[0]
+                        alpha = Math.min(alpha, childeval);
+                        min = Math.min(min, childeval)
+                        results.push(childeval)
+                        if (beta <= alpha) {
+                            break;
+                        }
+                    }
+                    return [min, children[results.indexOf(min)]]
                 }
             }
 
@@ -459,9 +465,9 @@
     </script>
     <div id="init">
         <p> Click Difficulty to start:</p>
-        <button onClick="setDifficulty(4);">1</button>
-        <button onClick="setDifficulty(5);">2</button>
-        <button onClick="setDifficulty(6);">3</button><br>
+        <button onClick="setDifficulty(1);">1</button>
+        <button onClick="setDifficulty(6);">2</button>
+        <button onClick="setDifficulty(7);">3</button><br>
         <label>Ai goes first?</label><input type="checkbox" id="turn">
 
     </div>
