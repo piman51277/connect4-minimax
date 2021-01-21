@@ -74,25 +74,24 @@
                         if (board[y][column] != 0) {
                             board[y - 1][column] = player
                             turn = turn == 1 ? 2 : 1
-                            boardEval = evalBoard(board, 1)
                             break;
                         }
                     }
                     if (board[5][column] == 0) { //the lowest slot is a 0, you can put a token here
                         board[5][column] = player
                         turn = turn == 1 ? 2 : 1
-                        boardEval = evalBoard(board, 1)
                     }
                 }
 
+                boardEval = evalBoard(board, 1)
                 refreshDisplay('computing...');
                 setTimeout(() => {
                         if (turn == 2 && (boardEval != Infinity && boardEval != -Infinity)) {
                             //trigger AI for green
                             board = getBestMove(board, 2)
                             turn = 1
-                            boardEval = evalBoard(board, 1)
                         }
+                        boardEval = evalBoard(board, 1)
                         refreshDisplay('player turn');
                     }, 1) //add delay so the board can update before computing
                 if (boardEval == Infinity) winner = 1;
