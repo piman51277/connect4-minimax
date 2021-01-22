@@ -147,8 +147,9 @@
                 ctx.fillRect(230, 0, 120, 30)
                 ctx.fillStyle = "white";
                 ctx.fillText(`Evaluation: ${winner != 0 ? boardEval.toString().replace('Infinity','∞') : boardEval}`, 290, 20)
-
-                //status text
+                ctx.fillStyle = boardEval < 0 ? '#FF0000' : `#2FFF2F`
+                ctx.fillRect(350, 0, 30, 30)
+                    //status text
                 ctx.textAlign = "center";
                 ctx.fillStyle = "#FFFFFF";
                 ctx.font = '20px Georgia'
