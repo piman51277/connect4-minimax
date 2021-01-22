@@ -1,5 +1,5 @@
 # connect4
-This is a thrown-together AI for connect 4 using miniMax (no alpha beta pruning)
+This is a hard-coded AI for connect 4 using miniMax
 
 # operation
 run `main.js` and navigate to http://localhost:8000,
